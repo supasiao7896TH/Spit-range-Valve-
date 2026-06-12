@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#f8fafc">
+    <meta name="description" content="เครื่องมือจำลองและคำนวณการทำงานของ Split Range Valve">
+    <title>Split Range Valve</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+
+    <header class="appbar">
+        <div>
+            <h1>Split Range Valve</h1>
+            <div class="sub">โหมด: <span id="modeSub">ตรงข้ามกัน (M Type)</span></div>
+        </div>
+        <button id="themeBtn" class="icon-btn" aria-label="สลับธีมมืด/สว่าง">🌙</button>
+    </header>
+
+    <div class="seg" id="modeSeg" role="tablist">
+        <button data-type="type1" class="on" role="tab">🔛 ตรงข้าม</button>
+        <button data-type="type2" role="tab">➡️ ตามลำดับ</button>
+        <button data-type="type3" role="tab">🌀 ผสม</button>
+    </div>
+
+    <main class="body">
+
+        <section class="card">
+            <div class="card-title">
+                <span>กราฟ Valve Opening เทียบ MV</span>
+                <span>จุดส้ม = ตำแหน่งปัจจุบัน</span>
+            </div>
+            <svg id="chart" viewBox="0 0 320 170" aria-hidden="true"></svg>
+        </section>
+
+        <section class="card" id="valveCard">
+            <div class="valve-row" id="rowA">
+                <div class="v-ic v-ic-a">🟢</div>
+                <div class="v-meta">
+                    <div class="v-name">วาล์ว A</div>
+                    <div class="v-bar"><div class="v-fill" id="fillA"></div></div>
+                </div>
+                <div class="v-val">
+                    <div class="v-pct" id="pctA">0.0%</div>
+                    <span class="chip" id="chipA">ปิดสนิท</span>
+                </div>
+            </div>
+            <div class="valve-row" id="rowB">
+                <div class="v-ic v-ic-b">🔵</div>
+                <div class="v-meta">
+                    <div class="v-name">วาล์ว B</div>
+                    <div class="v-bar"><div class="v-fill" id="fillB"></div></div>
+                </div>
+                <div class="v-val">
+                    <div class="v-pct" id="pctB">0.0%</div>
+                    <span class="chip" id="chipB">ปิดสนิท</span>
+                </div>
+            </div>
+            <div class="valve-row hidden" id="rowC">
+                <div class="v-ic v-ic-c">🟣</div>
+                <div class="v-meta">
+                    <div class="v-name">วาล์ว C</div>
+                    <div class="v-bar"><div class="v-fill" id="fillC"></div></div>
+                </div>
+                <div class="v-val">
+                    <div class="v-pct" id="pctC">0.0%</div>
+                    <span class="chip" id="chipC">ปิดสนิท</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <section class="mvdock">
+        <div class="mv-top">
+            <label class="mv-label" for="mvInput">MV จาก DCS (แตะตัวเลขเพื่อพิมพ์)</label>
+            <div class="mv-big">
+                <input type="text" inputmode="decimal" id="mvInput" value="50.0" aria-label="ค่า MV เปอร์เซ็นต์">
+                <small>%</small>
+            </div>
+        </div>
+        <input type="range" id="mvSlider" min="0" max="100" step="0.1" value="50" aria-label="สไลเดอร์ MV">
+        <div class="steppers">
+            <button class="step minus" data-delta="-1">−1</button>
+            <button class="step minus" data-delta="-0.1">−0.1</button>
+            <button class="step plus" data-delta="0.1">+0.1</button>
+            <button class="step plus" data-delta="1">+1</button>
+        </div>
+    </section>
+
+    <nav class="bottomnav">
+        <button id="navSim" class="on"><span>🎛️</span>จำลอง</button>
+        <button id="navTest"><span>🧪</span>ทดสอบ</button>
+        <button id="navHelp"><span>📖</span>วิธีใช้</button>
+    </nav>
+
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- ===== Bottom sheet: เครื่องมือทดสอบ (คำนวณย้อนกลับ) ===== -->
+<section class="sheet" id="testSheet" aria-label="เครื่องมือทดสอบวาล์ว">
+    <div class="sheet-grab"></div>
+    <h2>🧪 ทดสอบวาล์ว (คำนวณย้อนกลับ)</h2>
+    <p class="hint">อยากให้วาล์วเปิดเท่าไหร่ → ระบบบอกค่า MV ที่ต้องป้อนใน DCS ทันทีที่พิมพ์</p>
+
+    <label class="f-label">1. เลือกวาล์ว</label>
+    <div class="pill-row" id="valvePills">
+        <button data-valve="A" class="on">วาล์ว A</button>
+        <button data-valve="B">วาล์ว B</button>
+        <button data-valve="C" class="hidden">วาล์ว C</button>
+    </div>
+
+    <label class="f-label" for="desiredOpening">2. % ที่ต้องการให้เปิด (0–100)</label>
+    <input type="text" inputmode="decimal" id="desiredOpening" class="sheet-input" placeholder="เช่น 25">
+
+    <div class="answer">
+        <div class="a-label">ป้อน MV ที่ DCS</div>
+        <div class="a-val" id="resultMV">–</div>
+        <div class="a-info" id="resultInfo"></div>
+    </div>
+
+    <button class="go-btn" id="applyBtn" disabled>⚡ ใช้ค่านี้ในหน้าจำลองเลย</button>
+</section>
+
+<!-- ===== Bottom sheet: วิธีใช้ ===== -->
+<section class="sheet" id="helpSheet" aria-label="วิธีใช้งาน">
+    <div class="sheet-grab"></div>
+    <h2>📖 รูปแบบ Split Range ทั้ง 3 โหมด</h2>
+    <div class="help-item">
+        <h3>🔛 ตรงข้ามกัน (M Type)</h3>
+        <p>ใช้รักษาสมดุล ⚖️ วาล์ว B จะเปิดเมื่อ MV &lt; 50% ส่วนวาล์ว A จะเปิดเมื่อ MV &gt; 50% ที่ MV = 50% วาล์วปิดทั้งคู่</p>
+    </div>
+    <div class="help-item">
+        <h3>➡️ ตามลำดับ (N Type)</h3>
+        <p>วาล์ว A เปิดก่อน (MV 0–50%) ถ้ายังไม่พอ วาล์ว B จะช่วยเปิดตามมา (MV 50–100%) 🚀</p>
+    </div>
+    <div class="help-item">
+        <h3>🌀 แบบผสม (M+N Type)</h3>
+        <p><strong>MV 0–33%:</strong> วาล์ว A ค่อยๆ ปิด<br>
+        <strong>MV 33–66%:</strong> วาล์ว B ค่อยๆ เปิด<br>
+        <strong>MV 66–100%:</strong> วาล์ว B เปิดสุด + วาล์ว C เปิดตาม</p>
+    </div>
+    <p class="credit">Made with 💜 by Supasit A.</p>
+</section>
+
+<script src="js/app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — Split Range Valve PWA (ม็อคอัพ ยังไม่ใช่แอปจริง)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+        font-family:'Mitr',sans-serif;
+        background:#1e293b;
+        color:#e2e8f0;
+        padding:32px 16px 64px;
+    }
+    h1 { text-align:center; font-size:22px; font-weight:600; }
+    .subtitle { text-align:center; color:#94a3b8; font-size:14px; margin:6px 0 32px; }
+    .frames { display:flex; flex-wrap:wrap; gap:40px; justify-content:center; align-items:flex-start; }
+    .frame-wrap { text-align:center; }
+    .frame-label { font-size:15px; font-weight:500; color:#fbbf24; margin-bottom:12px; }
+    .frame-note { font-size:12px; color:#94a3b8; margin-top:10px; max-width:390px; }
+
+    /* ===== Phone frame ===== */
+    .phone {
+        width:390px; height:820px;
+        border-radius:40px;
+        border:10px solid #0f172a;
+        overflow:hidden;
+        position:relative;
+        box-shadow:0 25px 60px rgba(0,0,0,.5);
+        text-align:left;
+        display:flex; flex-direction:column;
+    }
+    .statusbar {
+        height:34px; flex:none;
+        display:flex; justify-content:space-between; align-items:center;
+        padding:0 22px; font-size:12px; font-weight:500;
+    }
+    .home-indicator {
+        position:absolute; bottom:7px; left:50%; transform:translateX(-50%);
+        width:120px; height:4px; border-radius:2px; background:currentColor; opacity:.35;
+    }
+
+    /* ============================================================
+       VARIANT A — Light "Mint Pro" (ต่อยอดธีมเดิม)
+       ============================================================ */
+    .light { background:#f8fafc; color:#334155; }
+    .light .statusbar { color:#334155; }
+
+    .l-appbar { display:flex; align-items:center; justify-content:space-between; padding:10px 20px 4px; }
+    .l-appbar h2 { font-size:19px; font-weight:600; color:#059669; }
+    .l-appbar .sub { font-size:11px; color:#94a3b8; font-weight:300; }
+    .icon-btn {
+        width:38px; height:38px; border-radius:12px; background:#fff;
+        border:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center;
+        font-size:17px; box-shadow:0 1px 3px rgba(0,0,0,.06);
+    }
+
+    .seg {
+        margin:12px 16px 0; background:#e2e8f0; border-radius:14px;
+        display:flex; padding:4px; gap:4px;
+    }
+    .seg button {
+        flex:1; border:0; border-radius:11px; padding:9px 4px;
+        font-family:inherit; font-size:13px; font-weight:500;
+        background:transparent; color:#64748b;
+    }
+    .seg .on { background:#fff; color:#059669; box-shadow:0 2px 6px rgba(0,0,0,.12); }
+
+    .l-body { flex:1; overflow:hidden; padding:14px 16px 0; display:flex; flex-direction:column; gap:12px; }
+
+    .card {
+        background:#fff; border-radius:18px; padding:14px 16px;
+        box-shadow:0 2px 10px rgba(15,23,42,.06);
+    }
+    .card .card-title { font-size:12px; color:#94a3b8; font-weight:400; margin-bottom:6px; display:flex; justify-content:space-between; }
+
+    /* chart */
+    .chart svg { width:100%; height:auto; display:block; }
+
+    /* valve rows */
+    .valve-row { display:flex; align-items:center; gap:12px; padding:9px 0; }
+    .valve-row + .valve-row { border-top:1px dashed #e2e8f0; }
+    .v-ic {
+        width:40px; height:40px; border-radius:12px; flex:none;
+        display:flex; align-items:center; justify-content:center; font-size:19px;
+    }
+    .v-a { background:#d1fae5; } .v-b { background:#dbeafe; }
+    .v-meta { flex:1; min-width:0; }
+    .v-name { font-size:14px; font-weight:500; }
+    .v-bar { height:8px; background:#f1f5f9; border-radius:4px; margin-top:5px; overflow:hidden; }
+    .v-fill { height:100%; border-radius:4px; }
+    .v-val { text-align:right; flex:none; width:84px; }
+    .v-pct { font-size:19px; font-weight:600; }
+    .chip {
+        display:inline-block; font-size:10px; padding:1px 8px; border-radius:99px; margin-top:2px;
+    }
+    .chip-open  { background:#d1fae5; color:#059669; }
+    .chip-mid   { background:#fef3c7; color:#b45309; }
+    .chip-close { background:#f1f5f9; color:#94a3b8; }
+
+    /* bottom MV control — thumb zone */
+    .l-mvdock {
+        flex:none; background:#fff; border-radius:24px 24px 0 0;
+        box-shadow:0 -6px 20px rgba(15,23,42,.10);
+        padding:16px 20px 30px; margin-top:auto;
+    }
+    .mv-top { display:flex; justify-content:space-between; align-items:baseline; }
+    .mv-label { font-size:13px; color:#64748b; }
+    .mv-big { font-size:40px; font-weight:700; color:#059669; line-height:1; }
+    .mv-big small { font-size:18px; font-weight:500; color:#94a3b8; }
+    .mv-slider { margin:14px 0 12px; height:14px; border-radius:7px; background:linear-gradient(to right,#10b981 65%,#e2e8f0 65%); position:relative; }
+    .mv-thumb {
+        position:absolute; top:50%; left:65%; transform:translate(-50%,-50%);
+        width:34px; height:34px; border-radius:50%; background:#fff;
+        border:6px solid #059669; box-shadow:0 2px 8px rgba(0,0,0,.25);
+    }
+    .steppers { display:flex; gap:8px; }
+    .step {
+        flex:1; padding:11px 0; border-radius:12px; border:1.5px solid #e2e8f0;
+        background:#f8fafc; text-align:center; font-size:14px; font-weight:600; color:#334155;
+    }
+    .step.minus { color:#dc2626; } .step.plus { color:#059669; }
+
+    /* bottom nav */
+    .l-nav { flex:none; display:flex; background:#fff; border-top:1px solid #f1f5f9; padding:6px 0 14px; }
+    .l-nav div { flex:1; text-align:center; font-size:11px; color:#94a3b8; }
+    .l-nav .on { color:#059669; font-weight:500; }
+    .l-nav span { display:block; font-size:20px; }
+
+    /* ============================================================
+       VARIANT B — Dark "Control Room"
+       ============================================================ */
+    .dark { background:#0b1220; color:#e2e8f0; }
+    .dark .statusbar { color:#e2e8f0; }
+
+    .d-appbar { display:flex; align-items:center; justify-content:space-between; padding:10px 20px 4px; }
+    .d-appbar h2 { font-size:19px; font-weight:600; color:#34d399; }
+    .d-appbar .sub { font-size:11px; color:#64748b; font-weight:300; }
+    .d-iconbtn {
+        width:38px; height:38px; border-radius:12px; background:#16213a;
+        border:1px solid #1e2c4a; display:flex; align-items:center; justify-content:center; font-size:17px;
+    }
+    .d-seg { margin:12px 16px 0; background:#16213a; border-radius:14px; display:flex; padding:4px; gap:4px; border:1px solid #1e2c4a; }
+    .d-seg button { flex:1; border:0; border-radius:11px; padding:9px 4px; font-family:inherit; font-size:13px; font-weight:500; background:transparent; color:#64748b; }
+    .d-seg .on { background:#065f46; color:#a7f3d0; box-shadow:0 0 14px rgba(16,185,129,.35); }
+
+    .d-body { flex:1; overflow:hidden; padding:14px 16px 0; display:flex; flex-direction:column; gap:12px; }
+    .d-card { background:#111a30; border:1px solid #1e2c4a; border-radius:18px; padding:14px 16px; }
+    .d-card .card-title { font-size:12px; color:#64748b; margin-bottom:8px; display:flex; justify-content:space-between; }
+
+    /* circular gauges */
+    .gauges { display:flex; justify-content:space-around; }
+    .gauge { text-align:center; }
+    .gauge svg { display:block; margin:0 auto; }
+    .g-pct { font-size:17px; font-weight:600; margin-top:-46px; }
+    .g-name { font-size:12px; color:#94a3b8; margin-top:26px; }
+    .g-state { font-size:10px; border-radius:99px; padding:1px 8px; display:inline-block; margin-top:3px; }
+    .gs-open { background:rgba(16,185,129,.15); color:#34d399; }
+    .gs-close{ background:rgba(100,116,139,.15); color:#94a3b8; }
+    .gs-mid  { background:rgba(251,191,36,.15); color:#fbbf24; }
+
+    .d-mvdock {
+        flex:none; background:#111a30; border:1px solid #1e2c4a; border-bottom:0;
+        border-radius:24px 24px 0 0; padding:16px 20px 30px; margin-top:auto;
+        box-shadow:0 -8px 30px rgba(16,185,129,.08);
+    }
+    .d-mv-big { font-size:40px; font-weight:700; color:#34d399; line-height:1; text-shadow:0 0 18px rgba(52,211,153,.4); }
+    .d-mv-big small { font-size:18px; font-weight:500; color:#64748b; }
+    .d-slider { margin:14px 0 12px; height:14px; border-radius:7px; background:linear-gradient(to right,#10b981 65%,#1e2c4a 65%); position:relative; }
+    .d-thumb { position:absolute; top:50%; left:65%; transform:translate(-50%,-50%); width:34px; height:34px; border-radius:50%; background:#0b1220; border:6px solid #34d399; box-shadow:0 0 16px rgba(52,211,153,.6); }
+    .d-step { flex:1; padding:11px 0; border-radius:12px; border:1.5px solid #1e2c4a; background:#16213a; text-align:center; font-size:14px; font-weight:600; color:#e2e8f0; }
+    .d-step.minus { color:#f87171; } .d-step.plus { color:#34d399; }
+    .d-nav { flex:none; display:flex; background:#0e162a; border-top:1px solid #1e2c4a; padding:6px 0 14px; }
+    .d-nav div { flex:1; text-align:center; font-size:11px; color:#64748b; }
+    .d-nav .on { color:#34d399; font-weight:500; }
+    .d-nav span { display:block; font-size:20px; }
+
+    /* ============================================================
+       SCREEN 3 — Bottom sheet (เครื่องมือทดสอบย้อนกลับ)
+       ============================================================ */
+    .dim { position:absolute; inset:0; background:rgba(2,6,23,.6); }
+    .sheet {
+        position:absolute; left:0; right:0; bottom:0;
+        background:#111a30; border:1px solid #1e2c4a; border-bottom:0;
+        border-radius:28px 28px 0 0; padding:10px 20px 34px;
+    }
+    .sheet-grab { width:44px; height:5px; border-radius:3px; background:#334155; margin:0 auto 14px; }
+    .sheet h3 { font-size:17px; font-weight:600; color:#e2e8f0; }
+    .sheet .hint { font-size:12px; color:#64748b; margin:2px 0 14px; }
+    .pill-row { display:flex; gap:8px; margin-bottom:14px; }
+    .pill { flex:1; text-align:center; padding:10px 0; border-radius:12px; border:1.5px solid #1e2c4a; background:#16213a; font-size:14px; color:#94a3b8; }
+    .pill.on { background:#065f46; border-color:#10b981; color:#a7f3d0; }
+    .sheet label { font-size:12px; color:#94a3b8; }
+    .sheet-input {
+        margin:6px 0 14px; background:#0b1220; border:1.5px solid #1e2c4a; border-radius:14px;
+        padding:13px; text-align:center; font-size:24px; font-weight:600; color:#e2e8f0;
+    }
+    .answer {
+        background:linear-gradient(135deg,#065f46,#047857); border-radius:16px;
+        padding:14px; text-align:center; margin-bottom:14px;
+    }
+    .answer .a-label { font-size:12px; color:#a7f3d0; }
+    .answer .a-val { font-size:36px; font-weight:700; color:#fff; }
+    .answer .a-range { font-size:11px; color:#a7f3d0; }
+    .go-btn {
+        background:#10b981; color:#06281d; border-radius:14px; padding:14px;
+        text-align:center; font-size:15px; font-weight:600;
+        box-shadow:0 4px 18px rgba(16,185,129,.35);
+    }
+</style>
+</head>
+<body>
+
+<h1>🎨 ม็อคอัพ UI ใหม่ — Split Range Valve PWA</h1>
+<p class="subtitle">ภาพจำลองหน้าตา (ยังกดไม่ได้จริง) ขนาดอิงจอ Samsung S26 Ultra · เลื่อนดูได้ 3 จอ</p>
+
+<div class="frames">
+
+    <!-- ================= SCREEN 1 : LIGHT ================= -->
+    <div class="frame-wrap">
+        <div class="frame-label">แบบ A — โทนสว่าง "Mint Pro" (ต่อยอดธีมเดิม)</div>
+        <div class="phone light">
+            <div class="statusbar"><span>15:42</span><span>📶 🔋 87%</span></div>
+
+            <div class="l-appbar">
+                <div>
+                    <h2>Split Range Valve</h2>
+                    <div class="sub">โหมด: ตามลำดับ (N Type)</div>
+                </div>
+                <div class="icon-btn">🌙</div>
+            </div>
+
+            <div class="seg">
+                <button>🔛 ตรงข้าม</button>
+                <button class="on">➡️ ตามลำดับ</button>
+                <button>🌀 ผสม</button>
+            </div>
+
+            <div class="l-body">
+                <!-- chart card -->
+                <div class="card chart">
+                    <div class="card-title"><span>กราฟ Valve Opening เทียบ MV</span><span>จุดสีส้ม = ตำแหน่งปัจจุบัน</span></div>
+                    <svg viewBox="0 0 320 150">
+                        <line x1="34" y1="10" x2="34" y2="126" stroke="#e2e8f0" stroke-width="1.5"/>
+                        <line x1="34" y1="126" x2="306" y2="126" stroke="#e2e8f0" stroke-width="1.5"/>
+                        <text x="8" y="16" font-size="9" fill="#94a3b8">100%</text>
+                        <text x="16" y="129" font-size="9" fill="#94a3b8">0%</text>
+                        <text x="30" y="142" font-size="9" fill="#94a3b8">0</text>
+                        <text x="160" y="142" font-size="9" fill="#94a3b8">MV 50</text>
+                        <text x="290" y="142" font-size="9" fill="#94a3b8">100</text>
+                        <line x1="170" y1="12" x2="170" y2="126" stroke="#f1f5f9" stroke-width="1" stroke-dasharray="3 3"/>
+                        <!-- valve A : 0-50 -->
+                        <polyline points="34,126 170,12 306,12" fill="none" stroke="#10b981" stroke-width="3" stroke-linejoin="round"/>
+                        <!-- valve B : 50-100 -->
+                        <polyline points="34,126 170,126 306,12" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linejoin="round"/>
+                        <!-- current MV marker -->
+                        <line x1="211" y1="12" x2="211" y2="126" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        <circle cx="211" cy="12" r="5" fill="#f59e0b" stroke="#fff" stroke-width="2"/>
+                        <circle cx="211" cy="92" r="5" fill="#f59e0b" stroke="#fff" stroke-width="2"/>
+                        <text x="218" y="106" font-size="10" fill="#f59e0b" font-weight="600">MV 65</text>
+                        <text x="60" y="40" font-size="10" fill="#10b981" font-weight="600">วาล์ว A</text>
+                        <text x="240" y="80" font-size="10" fill="#3b82f6" font-weight="600">วาล์ว B</text>
+                    </svg>
+                </div>
+
+                <!-- valve list -->
+                <div class="card">
+                    <div class="valve-row">
+                        <div class="v-ic v-a">🟢</div>
+                        <div class="v-meta">
+                            <div class="v-name">วาล์ว A</div>
+                            <div class="v-bar"><div class="v-fill" style="width:100%;background:#10b981"></div></div>
+                        </div>
+                        <div class="v-val">
+                            <div class="v-pct" style="color:#059669">100.0%</div>
+                            <span class="chip chip-open">เปิดเต็มที่</span>
+                        </div>
+                    </div>
+                    <div class="valve-row">
+                        <div class="v-ic v-b">🔵</div>
+                        <div class="v-meta">
+                            <div class="v-name">วาล์ว B</div>
+                            <div class="v-bar"><div class="v-fill" style="width:30%;background:#3b82f6"></div></div>
+                        </div>
+                        <div class="v-val">
+                            <div class="v-pct" style="color:#2563eb">30.0%</div>
+                            <span class="chip chip-mid">กำลังเปิด</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MV dock (thumb zone) -->
+                <div class="l-mvdock">
+                    <div class="mv-top">
+                        <div class="mv-label">MV จาก DCS</div>
+                        <div class="mv-big">65.0<small> %</small></div>
+                    </div>
+                    <div class="mv-slider"><div class="mv-thumb"></div></div>
+                    <div class="steppers">
+                        <div class="step minus">−1</div>
+                        <div class="step minus">−0.1</div>
+                        <div class="step plus">+0.1</div>
+                        <div class="step plus">+1</div>
+                    </div>
+                </div>
+                <div class="l-nav">
+                    <div class="on"><span>🎛️</span>จำลอง</div>
+                    <div><span>🧪</span>ทดสอบ</div>
+                    <div><span>📖</span>วิธีใช้</div>
+                </div>
+            </div>
+            <div class="home-indicator" style="color:#334155"></div>
+        </div>
+        <p class="frame-note">สไลเดอร์ + ปุ่ม MV ย้ายลงล่างให้กดถนัดมือเดียว · เพิ่มกราฟเส้นแสดงพฤติกรรม split range ทั้งช่วง · ปุ่ม ±0.1 / ±1 สำหรับจูนละเอียดแทนการลากสไลเดอร์</p>
+    </div>
+
+    <!-- ================= SCREEN 2 : DARK ================= -->
+    <div class="frame-wrap">
+        <div class="frame-label">แบบ B — โทนมืด "Control Room" (เกจวงกลมแบบหน้างาน)</div>
+        <div class="phone dark">
+            <div class="statusbar"><span>15:42</span><span>📶 🔋 87%</span></div>
+
+            <div class="d-appbar">
+                <div>
+                    <h2>Split Range Valve</h2>
+                    <div class="sub">โหมด: แบบผสม (M+N Type)</div>
+                </div>
+                <div class="d-iconbtn">☀️</div>
+            </div>
+
+            <div class="d-seg">
+                <button>🔛 ตรงข้าม</button>
+                <button>➡️ ตามลำดับ</button>
+                <button class="on">🌀 ผสม</button>
+            </div>
+
+            <div class="d-body">
+                <!-- gauges -->
+                <div class="d-card">
+                    <div class="card-title"><span>ตำแหน่งวาล์ว (Realtime)</span></div>
+                    <div class="gauges">
+                        <div class="gauge">
+                            <svg width="92" height="92" viewBox="0 0 92 92">
+                                <circle cx="46" cy="46" r="38" fill="none" stroke="#1e2c4a" stroke-width="9"/>
+                                <circle cx="46" cy="46" r="38" fill="none" stroke="#334155" stroke-width="9"
+                                    stroke-dasharray="0.001 238.8" stroke-linecap="round" transform="rotate(-90 46 46)"/>
+                            </svg>
+                            <div class="g-pct" style="color:#64748b">0%</div>
+                            <div class="g-name">วาล์ว A</div><br>
+                            <span class="g-state gs-close">ปิดสนิท</span>
+                        </div>
+                        <div class="gauge">
+                            <svg width="92" height="92" viewBox="0 0 92 92">
+                                <circle cx="46" cy="46" r="38" fill="none" stroke="#1e2c4a" stroke-width="9"/>
+                                <circle cx="46" cy="46" r="38" fill="none" stroke="#34d399" stroke-width="9"
+                                    stroke-dasharray="238.8 238.8" stroke-linecap="round" transform="rotate(-90 46 46)"/>
+                            </svg>
+                            <div class="g-pct" style="color:#34d399">100%</div>
+                            <div class="g-name">วาล์ว B</div><br>
+                            <span class="g-state gs-open">เปิดเต็มที่</span>
+                        </div>
+                        <div class="gauge">
+                            <svg width="92" height="92" viewBox="0 0 92 92">
+                                <circle cx="46" cy="46" r="38" fill="none" stroke="#1e2c4a" stroke-width="9"/>
+                                <circle cx="46" cy="46" r="38" fill="none" stroke="#fbbf24" stroke-width="9"
+                                    stroke-dasharray="105 238.8" stroke-linecap="round" transform="rotate(-90 46 46)"/>
+                            </svg>
+                            <div class="g-pct" style="color:#fbbf24">44%</div>
+                            <div class="g-name">วาล์ว C</div><br>
+                            <span class="g-state gs-mid">กำลังเปิด</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- mini chart -->
+                <div class="d-card">
+                    <div class="card-title"><span>กราฟ Opening เทียบ MV (M+N)</span></div>
+                    <svg viewBox="0 0 320 120">
+                        <line x1="30" y1="8" x2="30" y2="100" stroke="#1e2c4a" stroke-width="1.5"/>
+                        <line x1="30" y1="100" x2="306" y2="100" stroke="#1e2c4a" stroke-width="1.5"/>
+                        <text x="26" y="113" font-size="9" fill="#64748b">0</text>
+                        <text x="116" y="113" font-size="9" fill="#64748b">33</text>
+                        <text x="206" y="113" font-size="9" fill="#64748b">66</text>
+                        <text x="292" y="113" font-size="9" fill="#64748b">100</text>
+                        <polyline points="30,8 121,100 306,100" fill="none" stroke="#34d399" stroke-width="2.5"/>
+                        <polyline points="30,100 121,100 212,8 306,8" fill="none" stroke="#60a5fa" stroke-width="2.5"/>
+                        <polyline points="30,100 212,100 306,8" fill="none" stroke="#fbbf24" stroke-width="2.5"/>
+                        <line x1="253" y1="8" x2="253" y2="100" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        <circle cx="253" cy="60" r="4.5" fill="#f59e0b" stroke="#0b1220" stroke-width="2"/>
+                        <text x="258" y="55" font-size="10" fill="#f59e0b" font-weight="600">MV 81</text>
+                    </svg>
+                </div>
+
+                <div class="d-mvdock">
+                    <div class="mv-top">
+                        <div class="mv-label" style="color:#64748b;font-size:13px">MV จาก DCS</div>
+                        <div class="d-mv-big">81.0<small> %</small></div>
+                    </div>
+                    <div class="d-slider" style="background:linear-gradient(to right,#10b981 81%,#1e2c4a 81%)"><div class="d-thumb" style="left:81%"></div></div>
+                    <div class="steppers">
+                        <div class="d-step minus">−1</div>
+                        <div class="d-step minus">−0.1</div>
+                        <div class="d-step plus">+0.1</div>
+                        <div class="d-step plus">+1</div>
+                    </div>
+                </div>
+                <div class="d-nav">
+                    <div class="on"><span>🎛️</span>จำลอง</div>
+                    <div><span>🧪</span>ทดสอบ</div>
+                    <div><span>📖</span>วิธีใช้</div>
+                </div>
+            </div>
+            <div class="home-indicator" style="color:#e2e8f0"></div>
+        </div>
+        <p class="frame-note">โทนมืดถนอมสายตา เหมาะกับจอ AMOLED ของ S26 Ultra · เกจวงกลมให้ฟีลเหมือนหน้าจอ HMI/Control room · แสดงครบ 3 วาล์วในจอเดียวไม่ต้องเลื่อน</p>
+    </div>
+
+    <!-- ================= SCREEN 3 : BOTTOM SHEET ================= -->
+    <div class="frame-wrap">
+        <div class="frame-label">จอที่ 3 — เครื่องมือทดสอบ เปลี่ยนเป็น Bottom Sheet</div>
+        <div class="phone dark">
+            <div class="statusbar"><span>15:42</span><span>📶 🔋 87%</span></div>
+            <div class="d-appbar">
+                <div>
+                    <h2>Split Range Valve</h2>
+                    <div class="sub">โหมด: ตามลำดับ (N Type)</div>
+                </div>
+                <div class="d-iconbtn">☀️</div>
+            </div>
+            <div class="dim"></div>
+            <div class="sheet">
+                <div class="sheet-grab"></div>
+                <h3>🧪 ทดสอบวาล์ว (คำนวณย้อนกลับ)</h3>
+                <p class="hint">อยากให้วาล์วเปิดเท่าไหร่ → ระบบบอกค่า MV ที่ต้องป้อนใน DCS</p>
+
+                <label>1. เลือกวาล์ว</label>
+                <div class="pill-row">
+                    <div class="pill">วาล์ว A</div>
+                    <div class="pill on">วาล์ว B</div>
+                </div>
+
+                <label>2. % ที่ต้องการให้เปิด</label>
+                <div class="sheet-input">25</div>
+
+                <div class="answer">
+                    <div class="a-label">ป้อน MV ที่ DCS</div>
+                    <div class="a-val">62.5 %</div>
+                    <div class="a-range">หมายเหตุ: วาล์ว A จะเปิดเต็ม 100% ด้วย</div>
+                </div>
+
+                <div class="go-btn">⚡ ใช้ค่านี้ในหน้าจำลองเลย</div>
+            </div>
+            <div class="home-indicator" style="color:#e2e8f0"></div>
+        </div>
+        <p class="frame-note">เปิดจากแท็บ "ทดสอบ" ด้านล่าง เลื่อนปิดได้ ไม่ต้อง scroll หน้ายาวอีกต่อไป · คำนวณสดทันทีที่พิมพ์ (ไม่ต้องกดปุ่มคำนวณ) · ปุ่ม "ใช้ค่านี้" ส่งค่า MV กลับไปหน้าจำลองให้เห็นผลจริง</p>
+    </div>
+
+</div>
+</body>
+</html>
