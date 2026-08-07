@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE = 'srv-v2';
+const CACHE = 'srv-v3';
 
 const ASSETS = [
     './',
@@ -17,7 +17,7 @@ const ASSETS = [
     './fonts/mitr-600-latin.woff2',
     './fonts/mitr-700-thai.woff2',
     './fonts/mitr-700-latin.woff2',
-    './fonts/vt323-400-latin.woff2',
+    './img/aicoder-badge.svg',
     './icons/icon-192.png',
     './icons/icon-512.png',
     './icons/apple-touch-icon.png',
